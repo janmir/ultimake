@@ -65,6 +65,74 @@ const {app, BrowserWindow} = require('electron')
 
 console.log("Main process.")
 
+const grpc = require('grpc')
+const messages = require("./grpc_pb")
+const services = require("./grpc_grpc_pb")
+
+/**Server
+const gRPCServer = {
+  server: null,
+  host: "localhost:5005",
+  getServer: ()=>{
+    var server = new grpc.Server();
+    server.addService(services.RPCService, {
+      connect: (call)=>{
+          call.on('data', function(package) {
+            console.log(package.getData())
+            setTimeout(()=>{
+              var req = new messages.Package();
+              req.setData("Hellooowww pows");
+              call.write(req)
+            }, 1000)
+          });
+          call.on('end', function() {
+            console.log("Ending...")
+          });        
+      }
+    });
+    return server;
+  },
+  startServer: ()=>{
+    gRPCServer.server = gRPCServer.getServer()
+    gRPCServer.server.bind(gRPCServer.host, 
+      grpc.ServerCredentials.createInsecure());
+    gRPCServer.server.start();
+  }
+}
+*/
+
+/** gRPC Client
+const gRPCClient = {
+  client: null,
+  host: "localhost:5005",
+  getClient: ()=>{
+    var client = new services.RPCClient('0.0.0.0:5000', 
+      grpc.credentials.createInsecure());
+    return client
+  },
+  connectClient: ()=>{
+    var client = gRPCClient.getClient()
+    gRPCClient.client = client.connect();
+    gRPCClient.client.on('data', function(pack) {
+      console.log("On-Receive-Data:")
+      console.log(pack.getData())
+    });
+    
+    gRPCClient.client.on('end', function(pack) {
+      console.log("On-Exit:")
+      console.log(pack)
+    });
+  },
+  sendEnd: ()=>{
+      console.log("On-Send-Data")
+      var request = new messages.Package();
+      request.setData("Hellooowww pows");
+      gRPCClient.client.write(request);
+      gRPCClient.client.end();
+  }
+}
+*/
+
 function createWindow () {
   //Create the browser window.
   win = new BrowserWindow({width: 800, height: 600})
@@ -75,34 +143,13 @@ function createWindow () {
   //Open Development tool
   win.webContents.openDevTools()
   
+  console.log("Starting grpc server.")
+  gRPCServer.startServer()
   console.log("Started.")
 }
 
-const grpc = require('grpc')
-const messages = require("./grpc_pb")
-const services = require("./grpc_grpc_pb")
-
-var client = new services.RPCClient('0.0.0.0:5000',grpc.credentials.createInsecure());
-var call = client.connect();
-call.on('data', function(pack) {
-  console.log("On-Receive-Data:")
-  console.log(pack.getData())
-});
-
-call.on('end', function(pack) {
-  console.log("On-Exit:")
-  console.log(pack)
-});
-
-clientPool = ()=>{
-  console.log("On-Send-Data")
-  var request = new messages.Package();
-  request.setData("Hellooowww pows");
-  call.write(request);
-  //call.end();
-}
-
 app.on('ready', createWindow)
+
 EOL
 
 cat > grpc.proto <<EOL
