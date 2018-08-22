@@ -72,3 +72,22 @@ install-webpack:
 #create the proto files
 protoc:
 	grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin` grpc.proto
+
+############################################################################################
+#                                     Golang Serverless                                    #
+############################################################################################
+
+sls-init:
+	sls create -t aws-go-dep -p service
+
+sls-build:
+	dep ensure
+	env GOOS=linux go build -ldflags="-s -w" -o bin/service service/main.go
+
+.PHONY: clean
+sls-clean:
+	rm -rf ./bin ./vendor Gopkg.lock
+
+.PHONY: deploy
+sls-deploy: clean build
+	sls deploy --verbose
