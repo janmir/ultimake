@@ -7,8 +7,13 @@ webpack:
 build-electron:
 	node ./node_modules/.bin/electron-builder
 
-build-go: 
-	go build -tags "release"
+build-go-dev:
+	go build -tags dev -race
+
+build-go-release:
+	go build -tags release
+
+build-no-gui:
 
 ############################################################################################
 #                                Initialization Script                                     #
