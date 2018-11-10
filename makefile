@@ -14,6 +14,7 @@ build-go-release:
 	go build -tags release
 
 build-no-gui:
+	go build -tags release -ldflags -H=windowsgui
 
 ############################################################################################
 #                                Initialization Script                                     #
