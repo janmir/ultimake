@@ -46,6 +46,9 @@ trace:
 	#https://golang.org/cmd/trace/
 	go test -bench . -trace trace.out
 
+escape-analysis:
+	go test -gcFlags '-m -m'
+
 ############################################################################################
 #                                Initialization Script                                     #
 ############################################################################################
