@@ -17,6 +17,36 @@ build-no-gui:
 	go build -tags release -ldflags -H=windowsgui
 
 ############################################################################################
+#                                Go Profiling Script                                       #
+############################################################################################
+
+mem-profile:
+	go test -cover -bench . -benchtime 2s -benchmem -memprofile prof.mem
+
+cpu-profile:
+	go test -cover -bench . -benchtime 2s -benchmem -cpuprofile prof.cpu
+
+cpu-pprof:
+	go tool pprof prof.test prof.cpu
+
+mem-pprof:
+	go tool pprof -alloc_objects prof.test prof.mem
+
+trace-to-pprof:
+	#net, sync, syscall, sched
+	go tool trace -pprof=syscall trace.out > syscal.pprof
+	#go tool pprof -web syscal.pprof
+	#go-torch -b syscal.pprof
+	#open torch.svg
+
+trace:
+	#inline - import "runtime/pprof" | "runtime/trace"
+	#inline - pprof.StartCPUProfile(os.Stdout) | trace.Start(os.Stdout)
+	#inline - defer pprof.StopCPUProfile() | defer trace.Stop()
+	#https://golang.org/cmd/trace/
+	go test -bench . -trace trace.out
+
+############################################################################################
 #                                Initialization Script                                     #
 ############################################################################################
 
